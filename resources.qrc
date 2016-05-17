@@ -1,5 +1,10 @@
 <RCC>
-    <qresource prefix="/images">
-        <file>images/placeholder.png</file>
+    <qresource prefix="/">
+        <file>images/auron.png</file>
+        <file>images/kimari.png</file>
+        <file>images/lulu.png</file>
+        <file>images/rikku.png</file>
+        <file>images/wakka.png</file>
+        <file>images/yuna.png</file>
     </qresource>
 </RCC>

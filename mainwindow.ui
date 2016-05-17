@@ -51,7 +51,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/images/placeholder.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/yuna.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="auronImage">
@@ -67,7 +67,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/images/placeholder.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/auron.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="kimariImage">
@@ -83,7 +83,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/images/placeholder.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/kimari.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="wakkaImage">
@@ -99,7 +99,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/images/placeholder.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/wakka.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="luluImage">
@@ -115,7 +115,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/images/placeholder.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/lulu.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="rikkuImage">
@@ -131,7 +131,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/images/placeholder.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/rikku.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="yunaText">
