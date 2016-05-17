@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
-#include "Windows.h"
+#include <Windows.h>
 
 namespace Ui {
 class MainWindow;

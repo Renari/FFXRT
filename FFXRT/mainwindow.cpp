@@ -1,8 +1,6 @@
+#include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QMessageLogger"
-#include "QTimer"
-#include "Windows.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,12 +17,19 @@ MainWindow::MainWindow(QWidget *parent) :
     luluText = findChild<QLabel *>("luluText");
     rikkuText = findChild<QLabel *>("rikkuText");
     updateAffection();
-
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    timer->stop();
+    delete timer;
+    delete yunaText;
+    delete auronText;
+    delete kimariText;
+    delete wakkaText;
+    delete luluText;
+    delete rikkuText;
 }
 
 void MainWindow::clearText()
