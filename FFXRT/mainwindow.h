@@ -28,12 +28,6 @@ private:
     const DWORD RIKKU_ADDRESS = 0x01D0CAD4;
     const LPCWSTR FFX_CLASS_NAME = L"PhyreFrameworkClass";
     const LPCWSTR FFX_WINDOW_TITLE = L"Final Fantasy X";
-    QLabel *yunaText;
-    QLabel *auronText;
-    QLabel *kimariText;
-    QLabel *wakkaText;
-    QLabel *luluText;
-    QLabel *rikkuText;
     void readMemoryAndSetText(HANDLE, QLabel*, DWORD);
     void clearText();
 private slots:
