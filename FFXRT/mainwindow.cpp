@@ -10,12 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(updateAffection()));
     timer->start(1000);
-    yunaText = findChild<QLabel *>("yunaText");
-    auronText = findChild<QLabel *>("auronText");
-    kimariText = findChild<QLabel *>("kimariText");
-    wakkaText = findChild<QLabel *>("wakkaText");
-    luluText = findChild<QLabel *>("luluText");
-    rikkuText = findChild<QLabel *>("rikkuText");
     updateAffection();
 }
 
@@ -24,22 +18,16 @@ MainWindow::~MainWindow()
     delete ui;
     timer->stop();
     delete timer;
-    delete yunaText;
-    delete auronText;
-    delete kimariText;
-    delete wakkaText;
-    delete luluText;
-    delete rikkuText;
 }
 
 void MainWindow::clearText()
 {
-    yunaText->setText("");
-    auronText->setText("");
-    kimariText->setText("");
-    wakkaText->setText("");
-    luluText->setText("");
-    rikkuText->setText("");
+    ui->yunaText->setText("");
+    ui->auronText->setText("");
+    ui->kimariText->setText("");
+    ui->wakkaText->setText("");
+    ui->luluText->setText("");
+    ui->rikkuText->setText("");
 }
 
 void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD address)
@@ -60,12 +48,12 @@ void MainWindow::updateAffection()
         HANDLE ffxHandle = OpenProcess(PROCESS_VM_READ, false, pid);
         if (ffxHandle)
         {
-            readMemoryAndSetText(ffxHandle, yunaText, YUNA_ADDRESS);
-            readMemoryAndSetText(ffxHandle, auronText, AURON_ADDRESS);
-            readMemoryAndSetText(ffxHandle, kimariText, KIMARI_ADDRESS);
-            readMemoryAndSetText(ffxHandle, wakkaText, WAKKA_ADDRESS);
-            readMemoryAndSetText(ffxHandle, luluText, LULU_ADDRESS);
-            readMemoryAndSetText(ffxHandle, rikkuText, RIKKU_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->yunaText, YUNA_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->auronText, AURON_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->kimariText, KIMARI_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->wakkaText, WAKKA_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->luluText, LULU_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->rikkuText, RIKKU_ADDRESS);
         }
         else
         {
