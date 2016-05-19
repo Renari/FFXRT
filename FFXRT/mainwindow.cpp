@@ -51,14 +51,13 @@ DWORD MainWindow::getBaseAddress(DWORD pid)
     module.dwSize = sizeof(MODULEENTRY32);
     HANDLE moduleHandle = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
     if (moduleHandle) {
-        if(!Module32First(moduleHandle, &module)) {
-            return 0;
+        if(Module32First(moduleHandle, &module)) {
+            do {
+                if(!wcscmp(module.szModule, FFX_PROCESS_NAME)) {
+                    return (unsigned int)module.modBaseAddr;
+                }
+            } while(Module32Next(moduleHandle, &module));
         }
-        do {
-            if(!wcscmp(module.szModule, FFX_PROCESS_NAME)) {
-                return (unsigned int)module.modBaseAddr;
-            }
-        } while(Module32Next(moduleHandle, &module));
     }
     return 0;
 }
