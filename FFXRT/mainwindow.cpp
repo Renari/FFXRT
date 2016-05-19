@@ -42,6 +42,7 @@ void MainWindow::clearText() {
     ui->wakkaText->setText("");
     ui->luluText->setText("");
     ui->rikkuText->setText("");
+    resetPixmap();
 }
 
 DWORD MainWindow::getBaseAddress(DWORD pid)
