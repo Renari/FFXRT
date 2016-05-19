@@ -20,12 +20,13 @@ public:
 private:
     Ui::MainWindow *ui;
     QTimer *timer;
-    const DWORD YUNA_ADDRESS = 0x01CACAC0;
-    const DWORD AURON_ADDRESS = 0x01CACAC4;
-    const DWORD KIMAHRI_ADDRESS = 0x01CACAC8;
-    const DWORD WAKKA_ADDRESS = 0x01CACACC;
-    const DWORD LULU_ADDRESS = 0x01CACAD0;
-    const DWORD RIKKU_ADDRESS = 0x01CACAD4;
+    const DWORD YUNA_ADDRESS = 0xD2CAC0;
+    const DWORD AURON_ADDRESS = 0xD2CAC4;
+    const DWORD KIMAHRI_ADDRESS = 0xD2CAC8;
+    const DWORD WAKKA_ADDRESS = 0xD2CACC;
+    const DWORD LULU_ADDRESS = 0xD2CAD0;
+    const DWORD RIKKU_ADDRESS = 0xD2CAD4;
+    const LPCWSTR FFX_PROCESS_NAME = L"FFX.exe";
     const LPCWSTR FFX_CLASS_NAME = L"PhyreFrameworkClass";
     const LPCWSTR FFX_WINDOW_TITLE = L"FINAL FANTASY X";
     uint highestValue = 0;
@@ -42,6 +43,7 @@ private:
     QPixmap rikku;
     QPixmap rikkuH;
     void clearText();
+    DWORD getBaseAddress(DWORD);
     void readMemoryAndSetText(HANDLE, QLabel*, DWORD);
     void resetPixmap();
     void updatePixmap(QLabel*, boolean);

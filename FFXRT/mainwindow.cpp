@@ -1,3 +1,5 @@
+#include <Windows.h>
+#include <TlHelp32.h>
 #include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -42,8 +44,26 @@ void MainWindow::clearText() {
     ui->rikkuText->setText("");
 }
 
+DWORD MainWindow::getBaseAddress(DWORD pid)
+{
+    MODULEENTRY32 module;
+    module.dwSize = sizeof(MODULEENTRY32);
+    HANDLE moduleHandle = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
+    if (moduleHandle) {
+        if(!Module32First(moduleHandle, &module)) {
+            return 0;
+        }
+        do {
+            if(!wcscmp(module.szModule, FFX_PROCESS_NAME)) {
+                return (unsigned int)module.modBaseAddr;
+            }
+        } while(Module32Next(moduleHandle, &module));
+    }
+    return 0;
+}
+
 void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD address) {
-    uint value = 0;
+    unsigned int value = 0;
     ReadProcessMemory(handle,(void*)address,&value,sizeof(value),0);
     label->setText(QString::number(value));
     if(value > highestValue) {
@@ -63,29 +83,30 @@ void MainWindow::updateAffection() {
     HWND ffx = FindWindow(FFX_CLASS_NAME, FFX_WINDOW_TITLE);
     if (ffx) {
         GetWindowThreadProcessId(ffx, &pid);
-        HANDLE ffxHandle = OpenProcess(PROCESS_VM_READ, false, pid);
-        if (ffxHandle) {
-            readMemoryAndSetText(ffxHandle, ui->yunaText,    YUNA_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->auronText,   AURON_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->kimahriText, KIMAHRI_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->wakkaText,   WAKKA_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->luluText,    LULU_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->rikkuText,   RIKKU_ADDRESS);
-        } else {
-            clearText();
+        DWORD baseAddress = getBaseAddress(pid);
+        if (baseAddress) {
+            HANDLE ffxHandle = OpenProcess(PROCESS_VM_READ, false, pid);
+            if (ffxHandle) {
+                readMemoryAndSetText(ffxHandle, ui->yunaText,    baseAddress+YUNA_ADDRESS);
+                readMemoryAndSetText(ffxHandle, ui->auronText,   baseAddress+AURON_ADDRESS);
+                readMemoryAndSetText(ffxHandle, ui->kimahriText, baseAddress+KIMAHRI_ADDRESS);
+                readMemoryAndSetText(ffxHandle, ui->wakkaText,   baseAddress+WAKKA_ADDRESS);
+                readMemoryAndSetText(ffxHandle, ui->luluText,    baseAddress+LULU_ADDRESS);
+                readMemoryAndSetText(ffxHandle, ui->rikkuText,   baseAddress+RIKKU_ADDRESS);
+                return;
+            }
         }
-    } else {
-        clearText();
     }
+    clearText();
 }
 
 void MainWindow::resetPixmap() {
-    updatePixmap(ui->yunaText, false);
-    updatePixmap(ui->auronText, false);
+    updatePixmap(ui->yunaText,    false);
+    updatePixmap(ui->auronText,   false);
     updatePixmap(ui->kimahriText, false);
-    updatePixmap(ui->wakkaText, false);
-    updatePixmap(ui->luluText, false);
-    updatePixmap(ui->rikkuText, false);
+    updatePixmap(ui->wakkaText,   false);
+    updatePixmap(ui->luluText,    false);
+    updatePixmap(ui->rikkuText,   false);
 }
 
 void MainWindow::updatePixmap(QLabel *label, boolean heart) {
