@@ -31,6 +31,7 @@ MainWindow::~MainWindow() {
     delete ui;
     timer->stop();
     delete timer;
+    delete highestValue;
     delete yuna;
     delete yunaH;
     delete auron;
