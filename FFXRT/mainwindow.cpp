@@ -31,7 +31,6 @@ MainWindow::~MainWindow() {
     delete ui;
     timer->stop();
     delete timer;
-    delete highestValue;
 }
 
 void MainWindow::clearText() {
