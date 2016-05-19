@@ -1,10 +1,16 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/auron.png</file>
-        <file>images/kimari.png</file>
-        <file>images/lulu.png</file>
-        <file>images/rikku.png</file>
-        <file>images/wakka.png</file>
-        <file>images/yuna.png</file>
+        <file>images/Auron.png</file>
+        <file>images/AuronH.png</file>
+        <file>images/Kimahri.png</file>
+        <file>images/KimahriH.png</file>
+        <file>images/Lulu.png</file>
+        <file>images/LuluH.png</file>
+        <file>images/Rikku.png</file>
+        <file>images/RikkuH.png</file>
+        <file>images/Wakka.png</file>
+        <file>images/WakkaH.png</file>
+        <file>images/Yuna.png</file>
+        <file>images/YunaH.png</file>
     </qresource>
 </RCC>

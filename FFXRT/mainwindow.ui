@@ -12,7 +12,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
+    <width>400</width>
     <height>360</height>
    </rect>
   </property>
@@ -24,13 +24,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>480</width>
+    <width>400</width>
     <height>360</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>480</width>
+    <width>400</width>
     <height>360</height>
    </size>
   </property>
@@ -43,7 +43,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>240</width>
+      <width>400</width>
       <height>60</height>
      </rect>
     </property>
@@ -51,7 +51,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/yuna.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/Yuna.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="auronImage">
@@ -59,7 +59,7 @@
      <rect>
       <x>0</x>
       <y>60</y>
-      <width>240</width>
+      <width>400</width>
       <height>60</height>
      </rect>
     </property>
@@ -67,15 +67,15 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/auron.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/Auron.png</pixmap>
     </property>
    </widget>
-   <widget class="QLabel" name="kimariImage">
+   <widget class="QLabel" name="kimahriImage">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>120</y>
-      <width>240</width>
+      <width>400</width>
       <height>60</height>
      </rect>
     </property>
@@ -83,7 +83,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/kimari.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/Kimahri.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="wakkaImage">
@@ -91,7 +91,7 @@
      <rect>
       <x>0</x>
       <y>180</y>
-      <width>240</width>
+      <width>400</width>
       <height>60</height>
      </rect>
     </property>
@@ -99,7 +99,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/wakka.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/Wakka.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="luluImage">
@@ -107,7 +107,7 @@
      <rect>
       <x>0</x>
       <y>240</y>
-      <width>240</width>
+      <width>400</width>
       <height>60</height>
      </rect>
     </property>
@@ -115,7 +115,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/lulu.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/Lulu.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="rikkuImage">
@@ -123,7 +123,7 @@
      <rect>
       <x>0</x>
       <y>300</y>
-      <width>240</width>
+      <width>400</width>
       <height>60</height>
      </rect>
     </property>
@@ -131,15 +131,15 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/images/rikku.png</pixmap>
+     <pixmap resource="resources.qrc">:/images/Rikku.png</pixmap>
     </property>
    </widget>
    <widget class="QLabel" name="yunaText">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>340</x>
       <y>0</y>
-      <width>240</width>
+      <width>60</width>
       <height>60</height>
      </rect>
     </property>
@@ -159,9 +159,9 @@
    <widget class="QLabel" name="auronText">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>340</x>
       <y>60</y>
-      <width>240</width>
+      <width>60</width>
       <height>60</height>
      </rect>
     </property>
@@ -181,12 +181,12 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="kimariText">
+   <widget class="QLabel" name="kimahriText">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>340</x>
       <y>120</y>
-      <width>240</width>
+      <width>60</width>
       <height>60</height>
      </rect>
     </property>
@@ -206,9 +206,9 @@
    <widget class="QLabel" name="wakkaText">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>340</x>
       <y>180</y>
-      <width>240</width>
+      <width>60</width>
       <height>60</height>
      </rect>
     </property>
@@ -228,9 +228,9 @@
    <widget class="QLabel" name="luluText">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>340</x>
       <y>240</y>
-      <width>240</width>
+      <width>60</width>
       <height>60</height>
      </rect>
     </property>
@@ -250,9 +250,9 @@
    <widget class="QLabel" name="rikkuText">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>340</x>
       <y>300</y>
-      <width>240</width>
+      <width>60</width>
       <height>60</height>
      </rect>
     </property>

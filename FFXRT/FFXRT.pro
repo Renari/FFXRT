@@ -19,13 +19,10 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-DISTFILES +=
-
 RESOURCES += \
     resources.qrc
 
 win32 {
     RC_FILE = ffxrt.rc
-
     LIBS += "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.10586.0\\um\\x64\\User32.Lib"
 }
