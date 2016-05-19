@@ -31,6 +31,18 @@ MainWindow::~MainWindow() {
     delete ui;
     timer->stop();
     delete timer;
+    delete yuna;
+    delete yunaH;
+    delete auron;
+    delete auronH;
+    delete kimahri;
+    delete kimahriH;
+    delete wakka;
+    delete wakkaH;
+    delete lulu;
+    delete luluH;
+    delete rikku;
+    delete rikkuH;
 }
 
 void MainWindow::clearText() {
