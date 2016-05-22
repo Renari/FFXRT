@@ -70,7 +70,7 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD addres
         highestAffection = value;
         resetPixmap();
         updatePixmap(label, true);
-    } else if (value == highestAffection) {
+    } else if (highestAffection != 0 && value == highestAffection) {
         updatePixmap(label, true);
     } else {
         updatePixmap(label, false);
