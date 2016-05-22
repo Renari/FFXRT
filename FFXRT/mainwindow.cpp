@@ -66,11 +66,11 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD addres
     unsigned int value = 0;
     ReadProcessMemory(handle,(void*)address,&value,sizeof(value),0);
     label->setText(QString::number(value));
-    if(value > highestValue) {
-        highestValue = value;
+    if(value > highestAffection) {
+        highestAffection = value;
         resetPixmap();
         updatePixmap(label, true);
-    } else if (value == highestValue) {
+    } else if (value == highestAffection) {
         updatePixmap(label, true);
     } else {
         updatePixmap(label, false);
@@ -78,6 +78,8 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD addres
 }
 
 void MainWindow::updateAffection() {
+    // clear highest value since we're updating
+    highestAffection = 0;
     // try to find the FFX process
     DWORD pid;
     HWND ffx = FindWindow(FFX_CLASS_NAME, FFX_WINDOW_TITLE);

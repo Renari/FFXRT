@@ -20,6 +20,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QTimer *timer;
+    unsigned int highestAffection = 0;
     const DWORD YUNA_ADDRESS = 0xD2CAC0;
     const DWORD AURON_ADDRESS = 0xD2CAC4;
     const DWORD KIMAHRI_ADDRESS = 0xD2CAC8;
@@ -29,7 +30,6 @@ private:
     const LPCWSTR FFX_PROCESS_NAME = L"FFX.exe";
     const LPCWSTR FFX_CLASS_NAME = L"PhyreFrameworkClass";
     const LPCWSTR FFX_WINDOW_TITLE = L"FINAL FANTASY X";
-    uint highestValue = 0;
     QPixmap yuna;
     QPixmap yunaH;
     QPixmap auron;
