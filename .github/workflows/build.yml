@@ -41,14 +41,19 @@ jobs:
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Build FFXRT
-      shell: bash
+    - name: Build FFXRT (Windows)
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: |
+        mkdir build
+        cd build
+        qmake ..\FFXRT\FFXRT.pro
+        nmake
+
+    - name: Build FFXRT (Linux)
+      if: runner.os == 'Linux'
       run: |
         mkdir build
         cd build
         qmake ../FFXRT/FFXRT.pro
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          nmake
-        else
-          make -j$(nproc)
-        fi
+        make -j$(nproc)
