@@ -42,7 +42,7 @@ jobs:
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
       shell: pwsh
       run: |
-        Invoke-WebRequest -Uri https://download.qt.io/archive/qt/${{ env.QT_MAJOR_VERSION }}/${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}/single/qt-everywhere-src-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}.zip -OutFile qt-src.zip
+        Invoke-WebRequest -Uri https://download.qt.io/archive/qt/${{ env.QT_MAJOR_VERSION }}/${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}/single/qt-everywhere-opensource-src-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}.zip -OutFile qt-src.zip
         7z x qt-src.zip
         Rename-Item qt-everywhere-src-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }} qt-src
 
