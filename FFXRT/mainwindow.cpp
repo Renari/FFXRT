@@ -6,7 +6,6 @@
 #include <dirent.h>
 #include <fstream>
 #include <string>
-#include <iostream>
 #include <cstdlib>
 #include <algorithm>
 #endif
@@ -52,23 +51,36 @@ void MainWindow::clearText() {
     }
 }
 
+#ifdef _WIN32
+
 DWORD MainWindow::getBaseAddress(DWORD pid)
 {
-#ifdef _WIN32
     MODULEENTRY32 module;
     module.dwSize = sizeof(MODULEENTRY32);
     HANDLE moduleHandle = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
     if (moduleHandle) {
-        if(Module32First(moduleHandle, &module)) {
+        if (Module32First(moduleHandle, &module)) {
             do {
-                if(!wcscmp(module.szModule, (const wchar_t*)FFX_PROCESS_NAME.utf16())) {
-                    return (unsigned int)module.modBaseAddr;
+                if (!wcscmp(module.szModule, (const wchar_t*)FFX_PROCESS_NAME.utf16())) {
+                    return (DWORD)module.modBaseAddr;
                 }
-            } while(Module32Next(moduleHandle, &module));
+            } while (Module32Next(moduleHandle, &module));
         }
     }
     return 0;
-#else
+}
+
+void MainWindow::readMemoryAndSetText(HANDLE handle, CharacterUI& character, DWORD baseAddress) {
+    unsigned int value = 0;
+    DWORD address = baseAddress + character.addressOffset;
+    if (!ReadProcessMemory(handle, (void*)address, &value, sizeof(value), 0)) {
+        return;
+    }
+
+#else // Linux
+
+uint32_t MainWindow::getBaseAddress(pid_t pid)
+{
     std::string mapsPath = "/proc/" + std::to_string(pid) + "/maps";
     std::ifstream mapsFile(mapsPath);
     std::string line;
@@ -78,23 +90,18 @@ DWORD MainWindow::getBaseAddress(DWORD pid)
                 size_t dashPos = line.find('-');
                 if (dashPos != std::string::npos) {
                     std::string addrStr = line.substr(0, dashPos);
-                    return std::stoul(addrStr, nullptr, 16);
+                    return static_cast<uint32_t>(std::stoul(addrStr, nullptr, 16));
                 }
             }
         }
     }
     return 0;
-#endif
 }
 
-void MainWindow::readMemoryAndSetText(HANDLE handle, CharacterUI& character, DWORD baseAddress) {
+void MainWindow::readMemoryAndSetText(pid_t pid, CharacterUI& character, uint32_t baseAddress) {
     unsigned int value = 0;
-    DWORD address = baseAddress + character.addressOffset;
-#ifdef _WIN32
-    if (!ReadProcessMemory(handle, (void*)address, &value, sizeof(value), 0)) {
-        return;
-    }
-#else
+    uint32_t address = baseAddress + character.addressOffset;
+
     struct iovec local[1];
     struct iovec remote[1];
     local[0].iov_base = &value;
@@ -102,16 +109,15 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, CharacterUI& character, DWO
     remote[0].iov_base = (void*)(uintptr_t)address;
     remote[0].iov_len = sizeof(value);
 
-    // In Linux implementation, 'handle' is just the PID cast to void*
-    pid_t pid = (pid_t)(intptr_t)handle;
     if (process_vm_readv(pid, local, 1, remote, 1, 0) < 0) {
         return;
     }
-#endif
+
+#endif // _WIN32
+
     character.textLabel->setText(QString::number(value));
     if (value > highestAffection) {
         highestAffection = value;
-        // Reset all to normal, then highlight this one
         for (auto& c : characters) {
             c.imageLabel->setPixmap(c.normalPixmap);
         }
@@ -124,12 +130,10 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, CharacterUI& character, DWO
 }
 
 void MainWindow::updateAffection() {
-    // clear highest value since we're updating
     highestAffection = 0;
-    DWORD pid = 0;
 
 #ifdef _WIN32
-    // try to find the FFX process
+    DWORD pid = 0;
     HWND ffx = FindWindow((const wchar_t*)FFX_CLASS_NAME.utf16(), (const wchar_t*)FFX_WINDOW_TITLE.utf16());
     if (ffx) {
         GetWindowThreadProcessId(ffx, &pid);
@@ -145,7 +149,7 @@ void MainWindow::updateAffection() {
         }
     }
 #else
-    // Linux implementation: iterate /proc to find "FFX.exe"
+    pid_t pid = 0;
     DIR* procDir = opendir("/proc");
     if (procDir) {
         struct dirent* entry;
@@ -159,7 +163,7 @@ void MainWindow::updateAffection() {
                     if (cmdlineFile.is_open()) {
                         std::getline(cmdlineFile, cmdline, '\0');
                         if (cmdline.find(FFX_PROCESS_NAME.toStdString()) != std::string::npos) {
-                            pid = (DWORD)std::stoul(pidStr);
+                            pid = static_cast<pid_t>(std::stol(pidStr));
                             break;
                         }
                     }
@@ -170,12 +174,10 @@ void MainWindow::updateAffection() {
     }
 
     if (pid != 0) {
-        DWORD baseAddress = getBaseAddress(pid);
+        uint32_t baseAddress = getBaseAddress(pid);
         if (baseAddress) {
-            // Use PID as handle
-            HANDLE ffxHandle = (HANDLE)(intptr_t)pid;
             for (auto& c : characters) {
-                readMemoryAndSetText(ffxHandle, c, baseAddress);
+                readMemoryAndSetText(pid, c, baseAddress);
             }
             return;
         }
