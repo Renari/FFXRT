@@ -7,32 +7,99 @@ on:
     branches: [ "master" ]
   workflow_dispatch:
 
+env:
+  QT_VERSION: '5.15.2'
+  QT_STATIC_DIR: C:\Qt\static
+
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, windows-latest]
-        include:
-          - os: ubuntu-22.04
-            qt_arch: gcc_64
-          - os: windows-latest
-            qt_arch: win64_msvc2019_64
+  build-qt-static-windows:
+    name: Build Static Qt (Windows)
+    runs-on: windows-latest
+
+    steps:
+    - name: Check cache for static Qt
+      id: cache-qt-static
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.QT_STATIC_DIR }}
+        key: qt-static-${{ env.QT_VERSION }}-msvc2019-x64
+
+    - name: Setup MSVC
+      if: steps.cache-qt-static.outputs.cache-hit != 'true'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Install Qt build dependencies
+      if: steps.cache-qt-static.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        choco install -y strawberryperl
+        choco install -y ninja
+
+    - name: Download Qt source
+      if: steps.cache-qt-static.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        curl -L https://download.qt.io/official_releases/qt/5.15/5.15.2/single/qt-everywhere-src-5.15.2.tar.xz -o qt-src.tar.xz
+        7z x qt-src.tar.xz
+        7z x qt-src.tar
+        move qt-everywhere-src-5.15.2 qt-src
+
+    - name: Configure and build static Qt
+      if: steps.cache-qt-static.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        mkdir qt-build
+        cd qt-build
+        ..\qt-src\configure ^
+          -prefix ${{ env.QT_STATIC_DIR }} ^
+          -static ^
+          -static-runtime ^
+          -release ^
+          -confirm-license ^
+          -opensource ^
+          -platform win32-msvc ^
+          -no-feature-sql ^
+          -no-feature-network ^
+          -no-feature-testlib ^
+          -no-feature-xml ^
+          -no-feature-dbus ^
+          -no-feature-concurrent ^
+          -no-feature-accessibility ^
+          -nomake examples ^
+          -nomake tests ^
+          -skip qtwebengine ^
+          -skip qtmultimedia ^
+          -skip qtlocation ^
+          -skip qt3d ^
+          -skip qtdatavis3d ^
+          -skip qtcharts ^
+          -skip qtvirtualkeyboard ^
+          -skip qtscript ^
+          -skip qtremoteobjects ^
+          -skip qtsensors ^
+          -skip qtserialbus ^
+          -skip qtserialport ^
+          -skip qtwebchannel ^
+          -skip qtwebsockets ^
+          -skip qtwebview
+        nmake
+        nmake install
+
+  build-linux:
+    name: Build FFXRT (Linux AppImage)
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
-    
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
-        version: '5.15.2'
-        arch: ${{ matrix.qt_arch }}
-        
-    - name: Install Linux Dependencies
-      if: runner.os == 'Linux'
+        version: ${{ env.QT_VERSION }}
+        arch: gcc_64
+
+    - name: Install Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libgl1-mesa-dev libfuse2 file
@@ -40,47 +107,63 @@ jobs:
         wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-qt-x86_64.AppImage
         chmod +x linuxdeploy*.AppImage
 
-    - name: Setup MSVC (Windows)
-      if: runner.os == 'Windows'
-      uses: ilammy/msvc-dev-cmd@v1
-
-    - name: Build FFXRT (Windows)
-      if: runner.os == 'Windows'
-      shell: cmd
-      run: |
-        mkdir build
-        cd build
-        qmake ..\FFXRT\FFXRT.pro "CONFIG+=release"
-        nmake
-
-    - name: Upload FFXRT (Windows)
-      if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v4
-      with:
-        name: FFXRT-Windows
-        path: build/release/FFXRT.exe
-
     - name: Build FFXRT (Linux)
-      if: runner.os == 'Linux'
       run: |
         # Build
         mkdir build
         cd build
         qmake ../FFXRT/FFXRT.pro "CONFIG+=release"
         make -j$(nproc)
-        
+
         # Prepare AppDir
         mkdir -p AppDir/usr/bin
         mkdir -p AppDir/usr/share/applications
         cp FFXRT AppDir/usr/bin/
         cp ../ffxrt.desktop AppDir/usr/share/applications/
-        
+
         # Generate AppImage
         ../linuxdeploy-x86_64.AppImage --appdir AppDir --icon-file ../FFXRT/ffxrt.png --plugin qt --output appimage
 
     - name: Upload FFXRT (Linux AppImage)
-      if: runner.os == 'Linux'
       uses: actions/upload-artifact@v4
       with:
         name: FFXRT-Linux-AppImage
         path: build/*.AppImage
+
+  build-windows:
+    name: Build FFXRT (Windows)
+    runs-on: windows-latest
+    needs: build-qt-static-windows
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Restore static Qt from cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.QT_STATIC_DIR }}
+        key: qt-static-${{ env.QT_VERSION }}-msvc2019-x64
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Build FFXRT (static)
+      shell: cmd
+      run: |
+        mkdir build
+        cd build
+        ${{ env.QT_STATIC_DIR }}\bin\qmake ..\FFXRT\FFXRT.pro "CONFIG+=release" "CONFIG-=ltcg"
+        nmake
+
+    - name: Upload FFXRT (Windows)
+      uses: actions/upload-artifact@v4
+      with:
+        name: FFXRT-Windows
+        path: build\release\FFXRT.exe
+
+    - name: Upload FFXRT Object Files (Windows, LGPL compliance)
+      uses: actions/upload-artifact@v4
+      with:
+        name: FFXRT-Windows-Objects
+        path: build\**\*.obj
