@@ -9,7 +9,7 @@
 #include <string>
 #include <cstring>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #endif
 #include <QTimer>
 #include "mainwindow.h"
@@ -20,8 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
-    timer = new QTimer();
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateAffection()));
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MainWindow::updateAffection);
     timer->start(1000);
 
     QString textStyle = "QLabel { color: black; }";
@@ -49,9 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
     timer->stop();
-    delete timer;
+    delete ui;
 }
 
 void MainWindow::clearText() {
