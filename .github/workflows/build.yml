@@ -81,7 +81,21 @@ jobs:
           -skip qtwebchannel ^
           -skip qtwebsockets ^
           -skip qtwebview ^
-          -skip qtlottie
+          -skip qtlottie ^
+          -skip qttools ^
+          -skip qtdeclarative ^
+          -skip qtquick3d ^
+          -skip qtquickcontrols2 ^
+          -skip qtquicktimeline ^
+          -skip qtgamepad ^
+          -skip qtxmlpatterns ^
+          -skip qtconnectivity ^
+          -skip qtpurchasing ^
+          -skip qtdoc ^
+          -skip qtgraphicaleffects ^
+          -skip qtactiveqt ^
+          -skip qtscxml ^
+          -skip qtspeech
         popd
         exit /b 0
 
