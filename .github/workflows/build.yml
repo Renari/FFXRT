@@ -167,7 +167,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.QT_STATIC_DIR }}
-        key: qt-static-${{ env.QT_VERSION }}-msvc2019-x64
+        key: qt-static-${{ env.QT_VERSION }}-${{ env.MSVC_TOOLSET }}-${{ runner.arch }}
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
