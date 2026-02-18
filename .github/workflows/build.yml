@@ -37,12 +37,11 @@ jobs:
 
     - name: Download Qt source
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
-      shell: cmd
+      shell: pwsh
       run: |
-        curl -L https://download.qt.io/official_releases/qt/5.15/5.15.2/single/qt-everywhere-src-5.15.2.tar.xz -o qt-src.tar.xz
-        7z x qt-src.tar.xz
-        7z x qt-src.tar
-        move qt-everywhere-src-5.15.2 qt-src
+        Invoke-WebRequest -Uri https://download.qt.io/archive/qt/5.15/5.15.2/single/qt-everywhere-src-5.15.2.zip -OutFile qt-src.zip
+        7z x qt-src.zip
+        Rename-Item qt-everywhere-src-5.15.2 qt-src
 
     - name: Configure and build static Qt
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
