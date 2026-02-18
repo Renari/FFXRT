@@ -106,8 +106,8 @@ jobs:
       shell: cmd
       run: |
         pushd qt-build
-        nmake
-        nmake install
+        jom -j %NUMBER_OF_PROCESSORS%
+        jom install
         popd
 
   build-linux:
