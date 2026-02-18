@@ -44,7 +44,7 @@ jobs:
         7z x qt-src.zip
         Rename-Item qt-everywhere-src-5.15.2 qt-src
 
-    - name: Configure and build static Qt
+    - name: Configure static Qt
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
       shell: cmd
       run: |
@@ -81,7 +81,15 @@ jobs:
           -skip qtwebchannel ^
           -skip qtwebsockets ^
           -skip qtwebview
-        nmake /MP
+        popd
+        exit /b 0
+
+    - name: Build static Qt
+      if: steps.cache-qt-static.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        pushd qt-build
+        nmake
         nmake install
         popd
 
