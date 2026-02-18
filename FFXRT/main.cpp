@@ -5,6 +5,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setDesktopFileName("ffxrt");
     a.setWindowIcon(QIcon(":/ffxrt.png"));
     MainWindow w;
     w.show();
