@@ -15,6 +15,7 @@ jobs:
   build-qt-static-windows:
     name: Build Static Qt (Windows)
     runs-on: windows-latest
+    timeout-minutes: 360
 
     steps:
     - name: Check cache for static Qt
@@ -48,7 +49,7 @@ jobs:
       shell: cmd
       run: |
         mkdir qt-build
-        cd qt-build
+        pushd qt-build
         ..\qt-src\configure ^
           -prefix ${{ env.QT_STATIC_DIR }} ^
           -static ^
@@ -81,8 +82,9 @@ jobs:
           -skip qtwebchannel ^
           -skip qtwebsockets ^
           -skip qtwebview
-        nmake
+        nmake /MP
         nmake install
+        popd
 
   build-linux:
     name: Build FFXRT (Linux AppImage)
