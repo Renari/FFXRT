@@ -64,7 +64,6 @@ jobs:
           -no-feature-xml ^
           -no-feature-dbus ^
           -no-feature-concurrent ^
-          -no-feature-accessibility ^
           -nomake examples ^
           -nomake tests ^
           -skip qtwebengine ^
