@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=FFXRT
+Comment=Final Fantasy X Relationship Tracker
+Exec=FFXRT
+Icon=ffxrt
+Categories=Utility;
+Terminal=false

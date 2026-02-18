@@ -14,9 +14,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-22.04, windows-latest]
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             qt_arch: gcc_64
           - os: windows-latest
             qt_arch: win64_msvc2019_64
@@ -35,7 +35,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev
+        sudo apt-get install -y libgl1-mesa-dev libfuse2 file imagemagick
 
     - name: Setup MSVC (Windows)
       if: runner.os == 'Windows'
@@ -57,17 +57,36 @@ jobs:
         name: FFXRT-Windows
         path: build/release/FFXRT.exe
 
+    - name: Download linuxdeploy Tools (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        wget https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage
+        wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x linuxdeploy*.AppImage
+
     - name: Build FFXRT (Linux)
       if: runner.os == 'Linux'
       run: |
+        # Build
         mkdir build
         cd build
         qmake ../FFXRT/FFXRT.pro "CONFIG+=release"
         make -j$(nproc)
+        
+        # Prepare AppDir
+        mkdir -p AppDir/usr/bin
+        mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+        mkdir -p AppDir/usr/share/applications
+        cp FFXRT AppDir/usr/bin/
+        convert ../FFXRT/FFXRT.ico -resize 256x256 AppDir/usr/share/icons/hicolor/256x256/apps/ffxrt.png
+        cp ../ffxrt.desktop AppDir/usr/share/applications/
+        
+        # Generate AppImage
+        ../linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
 
-    - name: Upload FFXRT (Linux)
+    - name: Upload FFXRT (Linux AppImage)
       if: runner.os == 'Linux'
       uses: actions/upload-artifact@v4
       with:
-        name: FFXRT-Linux
-        path: build/FFXRT
+        name: FFXRT-Linux-AppImage
+        path: build/*.AppImage
