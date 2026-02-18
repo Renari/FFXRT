@@ -3,7 +3,18 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#ifdef _WIN32
 #include <Windows.h>
+#else
+#include <unistd.h>
+#include <sys/types.h>
+typedef unsigned long DWORD;
+typedef void* HANDLE;
+typedef unsigned short WORD;
+typedef const char* LPCSTR;
+typedef const wchar_t* LPCWSTR;
+typedef void* HWND;
+#endif
 
 namespace Ui {
 class MainWindow;
@@ -27,9 +38,9 @@ private:
     const DWORD WAKKA_ADDRESS = 0xD2CACC;
     const DWORD LULU_ADDRESS = 0xD2CAD0;
     const DWORD RIKKU_ADDRESS = 0xD2CAD4;
-    const LPCWSTR FFX_PROCESS_NAME = L"FFX.exe";
-    const LPCWSTR FFX_CLASS_NAME = L"PhyreFrameworkClass";
-    const LPCWSTR FFX_WINDOW_TITLE = L"FINAL FANTASY X";
+    const QString FFX_PROCESS_NAME = "FFX.exe";
+    const QString FFX_CLASS_NAME = "PhyreFrameworkClass";
+    const QString FFX_WINDOW_TITLE = "FINAL FANTASY X";
     QPixmap yuna;
     QPixmap yunaH;
     QPixmap auron;
@@ -46,7 +57,7 @@ private:
     DWORD getBaseAddress(DWORD);
     void readMemoryAndSetText(HANDLE, QLabel*, DWORD);
     void resetPixmap();
-    void updatePixmap(QLabel*, boolean);
+    void updatePixmap(QLabel*, bool);
 private slots:
     void updateAffection();
 };

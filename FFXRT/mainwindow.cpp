@@ -1,5 +1,16 @@
+#ifdef _WIN32
 #include <Windows.h>
 #include <TlHelp32.h>
+#else
+#include <sys/uio.h>
+#include <dirent.h>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <cstring>
+#include <iostream>
+#include <stdlib.h>
+#endif
 #include <QTimer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -12,6 +23,14 @@ MainWindow::MainWindow(QWidget *parent) :
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(updateAffection()));
     timer->start(1000);
+
+    QString textStyle = "QLabel { color: black; }";
+    ui->yunaText->setStyleSheet(textStyle);
+    ui->auronText->setStyleSheet(textStyle);
+    ui->kimahriText->setStyleSheet(textStyle);
+    ui->wakkaText->setStyleSheet(textStyle);
+    ui->luluText->setStyleSheet(textStyle);
+    ui->rikkuText->setStyleSheet(textStyle);
 
     yuna = QPixmap(":/images/Yuna.png");
     yunaH = QPixmap(":/images/YunaH.png");
@@ -47,24 +66,55 @@ void MainWindow::clearText() {
 
 DWORD MainWindow::getBaseAddress(DWORD pid)
 {
+#ifdef _WIN32
     MODULEENTRY32 module;
     module.dwSize = sizeof(MODULEENTRY32);
     HANDLE moduleHandle = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
     if (moduleHandle) {
         if(Module32First(moduleHandle, &module)) {
             do {
-                if(!wcscmp(module.szModule, FFX_PROCESS_NAME)) {
+                if(!wcscmp(module.szModule, (const wchar_t*)FFX_PROCESS_NAME.utf16())) {
                     return (unsigned int)module.modBaseAddr;
                 }
             } while(Module32Next(moduleHandle, &module));
         }
     }
     return 0;
+#else
+    std::string mapsPath = "/proc/" + std::to_string(pid) + "/maps";
+    std::ifstream mapsFile(mapsPath);
+    std::string line;
+    if (mapsFile.is_open()) {
+        while (std::getline(mapsFile, line)) {
+            if (line.find(FFX_PROCESS_NAME.toStdString()) != std::string::npos) {
+                size_t dashPos = line.find('-');
+                if (dashPos != std::string::npos) {
+                    std::string addrStr = line.substr(0, dashPos);
+                    return std::stoul(addrStr, nullptr, 16);
+                }
+            }
+        }
+    }
+    return 0;
+#endif
 }
 
 void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD address) {
     unsigned int value = 0;
+#ifdef _WIN32
     ReadProcessMemory(handle,(void*)address,&value,sizeof(value),0);
+#else
+    struct iovec local[1];
+    struct iovec remote[1];
+    local[0].iov_base = &value;
+    local[0].iov_len = sizeof(value);
+    remote[0].iov_base = (void*)(uintptr_t)address;
+    remote[0].iov_len = sizeof(value);
+    
+    // In Linux implementation, 'handle' is just the PID cast to void*
+    pid_t pid = (pid_t)(intptr_t)handle;
+    process_vm_readv(pid, local, 1, remote, 1, 0);
+#endif
     label->setText(QString::number(value));
     if(value > highestAffection) {
         highestAffection = value;
@@ -80,9 +130,11 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD addres
 void MainWindow::updateAffection() {
     // clear highest value since we're updating
     highestAffection = 0;
+    DWORD pid = 0;
+
+#ifdef _WIN32
     // try to find the FFX process
-    DWORD pid;
-    HWND ffx = FindWindow(FFX_CLASS_NAME, FFX_WINDOW_TITLE);
+    HWND ffx = FindWindow((const wchar_t*)FFX_CLASS_NAME.utf16(), (const wchar_t*)FFX_WINDOW_TITLE.utf16());
     if (ffx) {
         GetWindowThreadProcessId(ffx, &pid);
         DWORD baseAddress = getBaseAddress(pid);
@@ -99,6 +151,46 @@ void MainWindow::updateAffection() {
             }
         }
     }
+#else
+    // Linux implementation: iterate /proc to find "FFX.exe"
+    DIR* procDir = opendir("/proc");
+    if (procDir) {
+        struct dirent* entry;
+        while ((entry = readdir(procDir)) != nullptr) {
+            if (entry->d_type == DT_DIR) {
+                std::string pidStr = entry->d_name;
+                if (std::all_of(pidStr.begin(), pidStr.end(), ::isdigit)) {
+                    std::string cmdlinePath = "/proc/" + pidStr + "/cmdline";
+                    std::ifstream cmdlineFile(cmdlinePath);
+                    std::string cmdline;
+                    if (cmdlineFile.is_open()) {
+                        std::getline(cmdlineFile, cmdline, '\0');
+                        if (cmdline.find(FFX_PROCESS_NAME.toStdString()) != std::string::npos) {
+                            pid = (DWORD)std::stoul(pidStr);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        closedir(procDir);
+    }
+
+    if (pid != 0) {
+        DWORD baseAddress = getBaseAddress(pid);
+        if (baseAddress) {
+            // Use PID as handle
+            HANDLE ffxHandle = (HANDLE)(intptr_t)pid;
+            readMemoryAndSetText(ffxHandle, ui->yunaText,    baseAddress+YUNA_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->auronText,   baseAddress+AURON_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->kimahriText, baseAddress+KIMAHRI_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->wakkaText,   baseAddress+WAKKA_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->luluText,    baseAddress+LULU_ADDRESS);
+            readMemoryAndSetText(ffxHandle, ui->rikkuText,   baseAddress+RIKKU_ADDRESS);
+            return;
+        }
+    }
+#endif
     clearText();
 }
 
@@ -111,7 +203,7 @@ void MainWindow::resetPixmap() {
     updatePixmap(ui->rikkuText,   false);
 }
 
-void MainWindow::updatePixmap(QLabel *label, boolean heart) {
+void MainWindow::updatePixmap(QLabel *label, bool heart) {
 
     if (label == ui->yunaText) {
         if (heart) {
