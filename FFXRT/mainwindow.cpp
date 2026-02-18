@@ -101,7 +101,9 @@ DWORD MainWindow::getBaseAddress(DWORD pid)
 void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD address) {
     unsigned int value = 0;
 #ifdef _WIN32
-    ReadProcessMemory(handle,(void*)address,&value,sizeof(value),0);
+    if (!ReadProcessMemory(handle, (void*)address, &value, sizeof(value), 0)) {
+        return;
+    }
 #else
     struct iovec local[1];
     struct iovec remote[1];
@@ -109,10 +111,12 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD addres
     local[0].iov_len = sizeof(value);
     remote[0].iov_base = (void*)(uintptr_t)address;
     remote[0].iov_len = sizeof(value);
-    
+
     // In Linux implementation, 'handle' is just the PID cast to void*
     pid_t pid = (pid_t)(intptr_t)handle;
-    process_vm_readv(pid, local, 1, remote, 1, 0);
+    if (process_vm_readv(pid, local, 1, remote, 1, 0) < 0) {
+        return;
+    }
 #endif
     label->setText(QString::number(value));
     if(value > highestAffection) {
