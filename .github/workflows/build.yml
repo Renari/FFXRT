@@ -71,14 +71,15 @@ jobs:
         
         # Prepare AppDir
         mkdir -p AppDir/usr/bin
-        mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
         mkdir -p AppDir/usr/share/applications
         cp FFXRT AppDir/usr/bin/
-        convert ../FFXRT/FFXRT.ico -resize 256x256 AppDir/usr/share/icons/hicolor/256x256/apps/ffxrt.png
         cp ../ffxrt.desktop AppDir/usr/share/applications/
         
+        # Convert icon
+        convert ../FFXRT/FFXRT.ico -resize 256x256 ffxrt.png
+        
         # Generate AppImage
-        ../linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
+        ../linuxdeploy-x86_64.AppImage --appdir AppDir --icon-file ffxrt.png --plugin qt --output appimage
 
     - name: Upload FFXRT (Linux AppImage)
       if: runner.os == 'Linux'
