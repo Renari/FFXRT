@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  QT_VERSION: '5.15.2'
+  QT_MAJOR_VERSION: '5.15'
+  QT_PATCH_VERSION: '18'
   QT_STATIC_DIR: C:\Qt\static
   MSVC_TOOLSET: msvc143
 
@@ -24,7 +25,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.QT_STATIC_DIR }}
-        key: qt-static-${{ env.QT_VERSION }}-${{ env.MSVC_TOOLSET }}-${{ runner.arch }}
+        key: qt-static-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}-${{ env.MSVC_TOOLSET }}-${{ runner.arch }}
 
     - name: Setup MSVC
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
@@ -41,9 +42,9 @@ jobs:
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
       shell: pwsh
       run: |
-        Invoke-WebRequest -Uri https://download.qt.io/archive/qt/5.15/5.15.2/single/qt-everywhere-src-5.15.2.zip -OutFile qt-src.zip
+        Invoke-WebRequest -Uri https://download.qt.io/archive/qt/${{ env.QT_MAJOR_VERSION }}/${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}/single/qt-everywhere-src-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}.zip -OutFile qt-src.zip
         7z x qt-src.zip
-        Rename-Item qt-everywhere-src-5.15.2 qt-src
+        Rename-Item qt-everywhere-src-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }} qt-src
 
     - name: Configure static Qt
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
@@ -120,7 +121,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
-        version: ${{ env.QT_VERSION }}
+        version: ${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}
         arch: gcc_64
 
     - name: Install Dependencies
@@ -167,7 +168,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.QT_STATIC_DIR }}
-        key: qt-static-${{ env.QT_VERSION }}-${{ env.MSVC_TOOLSET }}-${{ runner.arch }}
+        key: qt-static-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}-${{ env.MSVC_TOOLSET }}-${{ runner.arch }}
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
