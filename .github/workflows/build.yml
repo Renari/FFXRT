@@ -169,6 +169,7 @@ jobs:
       with:
         path: ${{ env.QT_STATIC_DIR }}
         key: qt-static-${{ env.QT_MAJOR_VERSION }}.${{ env.QT_PATCH_VERSION }}-${{ env.MSVC_TOOLSET }}-${{ runner.arch }}
+        fail-on-cache-miss: true
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
