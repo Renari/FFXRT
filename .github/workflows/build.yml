@@ -2,9 +2,9 @@ name: Build FFXRT
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "master", "main" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
@@ -47,13 +47,27 @@ jobs:
       run: |
         mkdir build
         cd build
-        qmake ..\FFXRT\FFXRT.pro
+        qmake ..\FFXRT\FFXRT.pro "CONFIG+=release"
         nmake
+
+    - name: Upload FFXRT (Windows)
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: FFXRT-Windows
+        path: build/release/FFXRT.exe
 
     - name: Build FFXRT (Linux)
       if: runner.os == 'Linux'
       run: |
         mkdir build
         cd build
-        qmake ../FFXRT/FFXRT.pro
+        qmake ../FFXRT/FFXRT.pro "CONFIG+=release"
         make -j$(nproc)
+
+    - name: Upload FFXRT (Linux)
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: FFXRT-Linux
+        path: build/FFXRT
