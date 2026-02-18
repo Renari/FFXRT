@@ -1,0 +1,54 @@
+name: Build FFXRT
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            qt_arch: gcc_64
+          - os: windows-latest
+            qt_arch: win64_msvc2019_64
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+    
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        arch: ${{ matrix.qt_arch }}
+        
+    - name: Install Linux Dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev
+
+    - name: Setup MSVC (Windows)
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Build FFXRT
+      shell: bash
+      run: |
+        mkdir build
+        cd build
+        qmake ../FFXRT/FFXRT.pro
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          nmake
+        else
+          make -j$(nproc)
+        fi
