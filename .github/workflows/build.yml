@@ -149,11 +149,8 @@ jobs:
 
     - name: Build FFXRT (static)
       shell: cmd
-      run: |
-        mkdir build
-        cd build
-        ${{ env.QT_STATIC_DIR }}\bin\qmake ..\FFXRT\FFXRT.pro "CONFIG+=release" "CONFIG-=ltcg"
-        nmake
+      run: mkdir build && cd build && ${{ env.QT_STATIC_DIR }}\bin\qmake ..\FFXRT\FFXRT.pro "CONFIG+=release" "CONFIG-=ltcg" && nmake
+
 
     - name: Upload FFXRT (Windows)
       uses: actions/upload-artifact@v4
