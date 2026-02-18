@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>ffxrt.png</file>
         <file>images/Auron.png</file>
         <file>images/AuronH.png</file>
         <file>images/Kimahri.png</file>
