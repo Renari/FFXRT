@@ -5,11 +5,10 @@
 #include <sys/uio.h>
 #include <dirent.h>
 #include <fstream>
-#include <vector>
 #include <string>
-#include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 #endif
 #include <QTimer>
 #include "mainwindow.h"
@@ -24,26 +23,19 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, &QTimer::timeout, this, &MainWindow::updateAffection);
     timer->start(1000);
 
-    QString textStyle = "QLabel { color: black; }";
-    ui->yunaText->setStyleSheet(textStyle);
-    ui->auronText->setStyleSheet(textStyle);
-    ui->kimahriText->setStyleSheet(textStyle);
-    ui->wakkaText->setStyleSheet(textStyle);
-    ui->luluText->setStyleSheet(textStyle);
-    ui->rikkuText->setStyleSheet(textStyle);
+    characters = {{
+        { ui->yunaText,    ui->yunaImage,    QPixmap(":/images/Yuna.png"),    QPixmap(":/images/YunaH.png"),    0xD2CAC0 },
+        { ui->auronText,   ui->auronImage,   QPixmap(":/images/Auron.png"),   QPixmap(":/images/AuronH.png"),   0xD2CAC4 },
+        { ui->kimahriText, ui->kimahriImage, QPixmap(":/images/Kimahri.png"), QPixmap(":/images/KimahriH.png"), 0xD2CAC8 },
+        { ui->wakkaText,   ui->wakkaImage,   QPixmap(":/images/Wakka.png"),   QPixmap(":/images/WakkaH.png"),   0xD2CACC },
+        { ui->luluText,    ui->luluImage,    QPixmap(":/images/Lulu.png"),    QPixmap(":/images/LuluH.png"),    0xD2CAD0 },
+        { ui->rikkuText,   ui->rikkuImage,   QPixmap(":/images/Rikku.png"),   QPixmap(":/images/RikkuH.png"),   0xD2CAD4 },
+    }};
 
-    yuna = QPixmap(":/images/Yuna.png");
-    yunaH = QPixmap(":/images/YunaH.png");
-    auron = QPixmap(":/images/Auron.png");
-    auronH = QPixmap(":/images/AuronH.png");
-    kimahri = QPixmap(":/images/Kimahri.png");
-    kimahriH = QPixmap(":/images/KimahriH.png");
-    wakka = QPixmap(":/images/Wakka.png");
-    wakkaH = QPixmap(":/images/WakkaH.png");
-    lulu = QPixmap(":/images/Lulu.png");
-    luluH = QPixmap(":/images/LuluH.png");
-    rikku = QPixmap(":/images/Rikku.png");
-    rikkuH = QPixmap(":/images/RikkuH.png");
+    QString textStyle = "QLabel { color: black; }";
+    for (auto& c : characters) {
+        c.textLabel->setStyleSheet(textStyle);
+    }
 
     updateAffection();
 }
@@ -54,13 +46,10 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::clearText() {
-    ui->yunaText->setText("");
-    ui->auronText->setText("");
-    ui->kimahriText->setText("");
-    ui->wakkaText->setText("");
-    ui->luluText->setText("");
-    ui->rikkuText->setText("");
-    resetPixmap();
+    for (auto& c : characters) {
+        c.textLabel->setText("");
+        c.imageLabel->setPixmap(c.normalPixmap);
+    }
 }
 
 DWORD MainWindow::getBaseAddress(DWORD pid)
@@ -98,8 +87,9 @@ DWORD MainWindow::getBaseAddress(DWORD pid)
 #endif
 }
 
-void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD address) {
+void MainWindow::readMemoryAndSetText(HANDLE handle, CharacterUI& character, DWORD baseAddress) {
     unsigned int value = 0;
+    DWORD address = baseAddress + character.addressOffset;
 #ifdef _WIN32
     if (!ReadProcessMemory(handle, (void*)address, &value, sizeof(value), 0)) {
         return;
@@ -118,15 +108,18 @@ void MainWindow::readMemoryAndSetText(HANDLE handle, QLabel *label, DWORD addres
         return;
     }
 #endif
-    label->setText(QString::number(value));
-    if(value > highestAffection) {
+    character.textLabel->setText(QString::number(value));
+    if (value > highestAffection) {
         highestAffection = value;
-        resetPixmap();
-        updatePixmap(label, true);
+        // Reset all to normal, then highlight this one
+        for (auto& c : characters) {
+            c.imageLabel->setPixmap(c.normalPixmap);
+        }
+        character.imageLabel->setPixmap(character.heartPixmap);
     } else if (highestAffection != 0 && value == highestAffection) {
-        updatePixmap(label, true);
+        character.imageLabel->setPixmap(character.heartPixmap);
     } else {
-        updatePixmap(label, false);
+        character.imageLabel->setPixmap(character.normalPixmap);
     }
 }
 
@@ -144,12 +137,9 @@ void MainWindow::updateAffection() {
         if (baseAddress) {
             HANDLE ffxHandle = OpenProcess(PROCESS_VM_READ, false, pid);
             if (ffxHandle) {
-                readMemoryAndSetText(ffxHandle, ui->yunaText,    baseAddress+YUNA_ADDRESS);
-                readMemoryAndSetText(ffxHandle, ui->auronText,   baseAddress+AURON_ADDRESS);
-                readMemoryAndSetText(ffxHandle, ui->kimahriText, baseAddress+KIMAHRI_ADDRESS);
-                readMemoryAndSetText(ffxHandle, ui->wakkaText,   baseAddress+WAKKA_ADDRESS);
-                readMemoryAndSetText(ffxHandle, ui->luluText,    baseAddress+LULU_ADDRESS);
-                readMemoryAndSetText(ffxHandle, ui->rikkuText,   baseAddress+RIKKU_ADDRESS);
+                for (auto& c : characters) {
+                    readMemoryAndSetText(ffxHandle, c, baseAddress);
+                }
                 return;
             }
         }
@@ -184,76 +174,12 @@ void MainWindow::updateAffection() {
         if (baseAddress) {
             // Use PID as handle
             HANDLE ffxHandle = (HANDLE)(intptr_t)pid;
-            readMemoryAndSetText(ffxHandle, ui->yunaText,    baseAddress+YUNA_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->auronText,   baseAddress+AURON_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->kimahriText, baseAddress+KIMAHRI_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->wakkaText,   baseAddress+WAKKA_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->luluText,    baseAddress+LULU_ADDRESS);
-            readMemoryAndSetText(ffxHandle, ui->rikkuText,   baseAddress+RIKKU_ADDRESS);
+            for (auto& c : characters) {
+                readMemoryAndSetText(ffxHandle, c, baseAddress);
+            }
             return;
         }
     }
 #endif
     clearText();
-}
-
-void MainWindow::resetPixmap() {
-    updatePixmap(ui->yunaText,    false);
-    updatePixmap(ui->auronText,   false);
-    updatePixmap(ui->kimahriText, false);
-    updatePixmap(ui->wakkaText,   false);
-    updatePixmap(ui->luluText,    false);
-    updatePixmap(ui->rikkuText,   false);
-}
-
-void MainWindow::updatePixmap(QLabel *label, bool heart) {
-
-    if (label == ui->yunaText) {
-        if (heart) {
-            ui->yunaImage->setPixmap(yunaH);
-        } else {
-            ui->yunaImage->setPixmap(yuna);
-        }
-
-    }
-
-    if (label == ui->auronText) {
-        if (heart) {
-            ui->auronImage->setPixmap(auronH);
-        } else {
-            ui->auronImage->setPixmap(auron);
-        }
-    }
-
-    if (label == ui->kimahriText) {
-        if (heart) {
-            ui->kimahriImage->setPixmap(kimahriH);
-        } else {
-            ui->kimahriImage->setPixmap(kimahri);
-        }
-    }
-
-    if (label == ui->wakkaText) {
-        if (heart) {
-            ui->wakkaImage->setPixmap(wakkaH);
-        } else {
-            ui->wakkaImage->setPixmap(wakka);
-        }
-    }
-
-    if (label == ui->luluText) {
-        if (heart) {
-            ui->luluImage->setPixmap(luluH);
-        } else {
-            ui->luluImage->setPixmap(lulu);
-        }
-    }
-
-    if (label == ui->rikkuText) {
-        if (heart) {
-            ui->rikkuImage->setPixmap(rikkuH);
-        } else {
-            ui->rikkuImage->setPixmap(rikku);
-        }
-    }
 }
