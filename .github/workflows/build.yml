@@ -37,6 +37,7 @@ jobs:
       run: |
         choco install -y strawberryperl
         choco install -y ninja
+        choco install -y jom
 
     - name: Download Qt source
       if: steps.cache-qt-static.outputs.cache-hit != 'true'
