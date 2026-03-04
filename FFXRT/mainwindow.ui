@@ -3,7 +3,7 @@
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModality::NonModal</enum>
   </property>
   <property name="enabled">
    <bool>true</bool>
@@ -149,11 +149,14 @@
       <pointsize>24</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel { color: black; }</string>
+    </property>
     <property name="text">
      <string/>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="auronText">
@@ -171,14 +174,17 @@
       <pointsize>24</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel { color: black; }</string>
+    </property>
     <property name="text">
      <string/>
     </property>
     <property name="textFormat">
-     <enum>Qt::AutoText</enum>
+     <enum>Qt::TextFormat::AutoText</enum>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="kimahriText">
@@ -196,11 +202,14 @@
       <pointsize>24</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel { color: black; }</string>
+    </property>
     <property name="text">
      <string/>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="wakkaText">
@@ -218,11 +227,14 @@
       <pointsize>24</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel { color: black; }</string>
+    </property>
     <property name="text">
      <string/>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="luluText">
@@ -240,11 +252,14 @@
       <pointsize>24</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel { color: black; }</string>
+    </property>
     <property name="text">
      <string/>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="rikkuText">
@@ -262,11 +277,14 @@
       <pointsize>24</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel { color: black; }</string>
+    </property>
     <property name="text">
      <string/>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignmentFlag::AlignCenter</set>
     </property>
    </widget>
   </widget>

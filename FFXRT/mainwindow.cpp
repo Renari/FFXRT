@@ -31,11 +31,6 @@ MainWindow::MainWindow(QWidget *parent) :
         { ui->rikkuText,   ui->rikkuImage,   QPixmap(":/images/Rikku.png"),   QPixmap(":/images/RikkuH.png"),   0xD2CAD4 },
     }};
 
-    QString textStyle = "QLabel { color: black; }";
-    for (auto& c : characters) {
-        c.textLabel->setStyleSheet(textStyle);
-    }
-
     updateAffection();
 }
 
